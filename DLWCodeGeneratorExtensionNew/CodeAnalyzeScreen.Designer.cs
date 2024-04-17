@@ -70,7 +70,7 @@
             this.AnalyseModeBox.FormattingEnabled = true;
             this.AnalyseModeBox.Items.AddRange(new object[] {
             "Analyze Current Project",
-            "Analyze Other Project"});
+            "Analyze Current Window"});
             this.AnalyseModeBox.Location = new System.Drawing.Point(9, 96);
             this.AnalyseModeBox.Name = "AnalyseModeBox";
             this.AnalyseModeBox.Size = new System.Drawing.Size(242, 21);

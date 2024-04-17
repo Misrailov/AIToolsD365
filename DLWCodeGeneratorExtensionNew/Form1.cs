@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -13,9 +14,24 @@ namespace DLWCodeGeneratorExtensionNew
 {
     public partial class Form1 : Form
     {
+        [DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
+        private static extern IntPtr CreateRoundRectRgn
+       (
+           int nLeftRect,     // x-coordinate of upper-left corner
+           int nTopRect,      // y-coordinate of upper-left corner
+           int nRightRect,    // x-coordinate of lower-right corner
+           int nBottomRect,   // y-coordinate of lower-right corner
+           int nWidthEllipse, // width of ellipse
+           int nHeightEllipse // height of ellipse
+       );
+
         public Form1()
         {
             InitializeComponent();
+            this.FormBorderStyle = FormBorderStyle.None;
+            Region = System.Drawing.Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, 20, 20));
+
+
         }
 
         private void MinimizeWindowButton_Click(object sender, EventArgs e)
@@ -42,7 +58,7 @@ namespace DLWCodeGeneratorExtensionNew
             this.panel2 = new System.Windows.Forms.Panel();
             this.MinimizeWindowButton = new System.Windows.Forms.Button();
             this.CloseScreenButton = new System.Windows.Forms.Button();
-            
+            this.codeAnalyzeScreen1 = new DLWCodeGeneratorExtensionNew.CodeAnalyzeScreen();
             this.panel1.SuspendLayout();
             this.panel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -51,7 +67,7 @@ namespace DLWCodeGeneratorExtensionNew
             // 
             // panel1
             // 
-            this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(102)))), ((int)(((byte)(107)))), ((int)(((byte)(106)))));
+            this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(46)))), ((int)(((byte)(46)))));
             this.panel1.Controls.Add(this.CodeGenScreenButton);
             this.panel1.Controls.Add(this.ProjAnalysisScreenButton);
             this.panel1.Controls.Add(this.panel3);
@@ -131,7 +147,7 @@ namespace DLWCodeGeneratorExtensionNew
             // 
             // panel2
             // 
-            this.panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(102)))), ((int)(((byte)(107)))), ((int)(((byte)(106)))));
+            this.panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(46)))), ((int)(((byte)(46)))));
             this.panel2.Controls.Add(this.MinimizeWindowButton);
             this.panel2.Controls.Add(this.CloseScreenButton);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
@@ -142,11 +158,11 @@ namespace DLWCodeGeneratorExtensionNew
             // 
             // MinimizeWindowButton
             // 
-            this.MinimizeWindowButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(96)))), ((int)(((byte)(85)))));
+            this.MinimizeWindowButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(46)))), ((int)(((byte)(46)))));
             this.MinimizeWindowButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.MinimizeWindowButton.Font = new System.Drawing.Font("Century Gothic", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.MinimizeWindowButton.ForeColor = System.Drawing.Color.White;
-            this.MinimizeWindowButton.Location = new System.Drawing.Point(109, 1);
+            this.MinimizeWindowButton.Location = new System.Drawing.Point(109, -2);
             this.MinimizeWindowButton.Name = "MinimizeWindowButton";
             this.MinimizeWindowButton.Size = new System.Drawing.Size(79, 25);
             this.MinimizeWindowButton.TabIndex = 7;
@@ -156,25 +172,31 @@ namespace DLWCodeGeneratorExtensionNew
             // 
             // CloseScreenButton
             // 
-            this.CloseScreenButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(96)))), ((int)(((byte)(85)))));
+            this.CloseScreenButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(46)))), ((int)(((byte)(46)))));
             this.CloseScreenButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.CloseScreenButton.Font = new System.Drawing.Font("Century Gothic", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.CloseScreenButton.ForeColor = System.Drawing.Color.White;
-            this.CloseScreenButton.Location = new System.Drawing.Point(184, 1);
+            this.CloseScreenButton.Location = new System.Drawing.Point(184, -2);
             this.CloseScreenButton.Name = "CloseScreenButton";
             this.CloseScreenButton.Size = new System.Drawing.Size(79, 25);
             this.CloseScreenButton.TabIndex = 6;
             this.CloseScreenButton.Text = "Close";
             this.CloseScreenButton.UseVisualStyleBackColor = false;
             this.CloseScreenButton.Click += new System.EventHandler(this.CloseScreenButton_Click);
-        
+            // 
+            // codeAnalyzeScreen1
+            // 
+            this.codeAnalyzeScreen1.Location = new System.Drawing.Point(135, 36);
+            this.codeAnalyzeScreen1.Name = "codeAnalyzeScreen1";
+            this.codeAnalyzeScreen1.Size = new System.Drawing.Size(254, 332);
+            this.codeAnalyzeScreen1.TabIndex = 2;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(389, 368);
-            
+            this.Controls.Add(this.codeAnalyzeScreen1);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
