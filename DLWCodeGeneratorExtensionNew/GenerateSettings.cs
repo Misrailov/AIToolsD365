@@ -418,6 +418,11 @@ namespace DLWCodeGeneratorExtensionNew
         {
 
         }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
 public class MyResponseObject
@@ -431,18 +436,21 @@ public class ContractFile
 {
     public string Code { get; set; }
     public string ClassName { get; set; }
+    public string xml { get; set; }
 }
 
 public class ControllerFile
 {
     public string Code { get; set; }
     public string ClassName { get; set; }
+    public string xml { get; set; }
 }
 
 public class ServiceFile
 {
     public string Code { get; set; }
     public string ClassName { get; set; }
+    public string xml { get; set; }
 }
 
 public class ResultObject
@@ -453,4 +461,9 @@ public class ResultObject
 public class MyResponseObject2
 {
     public string response { get; set; }
+}
+public class ClassesRequestSend
+{
+    public ArrayList classes { get; set; }
+    public List<String> classNames { get; set; }
 }

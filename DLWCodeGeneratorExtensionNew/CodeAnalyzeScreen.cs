@@ -1,4 +1,5 @@
 ﻿using EnvDTE;
+using IronPython.Runtime;
 using Microsoft.Scripting.Utils;
 using Newtonsoft.Json;
 using System;
@@ -15,6 +16,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using static IronPython.Modules._ast;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace DLWCodeGeneratorExtensionNew
@@ -24,22 +26,28 @@ namespace DLWCodeGeneratorExtensionNew
         public CodeAnalyzeScreen()
         {
             InitializeComponent();
+            errorTextBox.Hide();
+            ErrorLabel.Hide();
+            resetButton.Hide();
+            currentProjectText.Hide();
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
+    
 
         }
 
         private async void button6_Click(object sender, EventArgs e)
         {
+                currentProjectText.Hide();
                 progressBar1.Show();
                 button6.Enabled = false;
-                if (AnalyseModeBox.SelectedIndex.Equals(AnalyseModeBox.Items[0]))
+                if (AnalyseModeBox.SelectedIndex.Equals(0))
                 {
                     retrieveCurrentProjectSummary();
                 }
-                else if (AnalyseModeBox.SelectedIndex.Equals(AnalyseModeBox.Items[1]))
+                else if (AnalyseModeBox.SelectedIndex.Equals(1))
                 {
                     await summarizeCurrentWindowsCode();
                 }
@@ -53,41 +61,77 @@ namespace DLWCodeGeneratorExtensionNew
         private async Task summarizeCurrentWindowsCode()
         {
             updateProgressBar2(10);
+           
             String classesRetrieved = retrieveCurrentWindowsCode();
             var result = await retrieveCurrentWindowsCodeAnalysisAsync(classesRetrieved);
+            this.currentProjectText.Show();
+            this.currentProjectText.Text = result;
             updateProgressBar2(100);
         }
 
         private async Task<String> retrieveCurrentWindowsCodeAnalysisAsync(String classes)
         {
-            updateProgressBar2(40);
-            var client = new HttpClient();
-            var formContent = new MultipartFormDataContent();
-            formContent.Add(new StringContent(classes), "classes");
-            updateProgressBar2(60);
-            var response = await client.PostAsync("http://127.0.0.1:5000/runCodeAnalyzer", formContent);
-            if (response.StatusCode != System.Net.HttpStatusCode.OK)
-            {
-                return "Error in code analysis";
-            }
-            updateProgressBar2(80);
-            var responseStream = await response.Content.ReadAsStreamAsync();
             String textFromResponse = "";
-            using (var reader = new StreamReader(responseStream))
+            try
             {
-                var responseContent = await reader.ReadToEndAsync();
-                var responseObject = JsonConvert.DeserializeObject<MyResponseObject2>(responseContent);
-                textFromResponse = responseObject.response;
+                updateProgressBar2(40);
+                var client = new HttpClient();
+                var formContent = new MultipartFormDataContent();
+                formContent.Add(new StringContent(classes), "classes");
+                updateProgressBar2(60);
+                var response = await client.PostAsync("https://israilovmpythonapi.azurewebsites.net/windowAnalyzer", formContent);
+                if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    return "Error in code analysis";
+                }
+                updateProgressBar2(80);
+                var responseStream = await response.Content.ReadAsStreamAsync();
+               
+                using (var reader = new StreamReader(responseStream))
+                {
+                    var responseContent = await reader.ReadToEndAsync();
+                    var responseObject = JsonConvert.DeserializeObject<string>(responseContent);
+                    textFromResponse = responseObject;
+                }
+            }catch (Exception e)
+            {
+                errorTextBox.Show();
+                ErrorLabel.Show();
+                button6.Hide();
+                resetButton.Show();
+                errorTextBox.Text = e.Message;
+                return "";
             }
             updateProgressBar2(90);
+            //addTextToCurrentWindow(textFromResponse);
+
+            
             return textFromResponse;
+        }
+        public void addTextToCurrentWindow(string text)
+        {
+            DTE currentDte = Package.GetGlobalService(typeof(DTE)) as DTE;
+            if (currentDte.ActiveDocument == null)
+            {
+                errorTextBox.Show();
+                errorTextBox.Text = "You have to select a current document";
+            }
+            TextDocument activeDoc = currentDte.ActiveDocument.Object() as TextDocument;
+            
+
+            activeDoc.Selection.Text ="/*" +text+ "*/" + activeDoc.Selection.Text;
+
         }
 
         public String retrieveCurrentWindowsCode()
         {
             DTE currentDte = Package.GetGlobalService(typeof(DTE)) as DTE;
-            if (currentDte.ActiveDocument == null) { return "You have to select a current document"; }
+            if (currentDte.ActiveDocument == null) {
+                errorTextBox.Show();
+                errorTextBox.Text = "You have to select a current document";
+                return "You have to select a current document"; }
             TextDocument activeDoc = currentDte.ActiveDocument.Object() as TextDocument;
+            
             var text = activeDoc.Selection.Text;
             var documentCollection = currentDte.Documents;
             String classesRetrieved = "";
@@ -111,24 +155,50 @@ namespace DLWCodeGeneratorExtensionNew
 
         private async void retrieveCurrentProjectSummary()
         {
-            updateProgressBar2(10);
-            String solutionDirectory = retrieveCurrentSolutionDirectory();
-            updateProgressBar2(30);
-            String projectDirectory = retrieveModelClassesDirectoryPath(solutionDirectory);
-            updateProgressBar2(40);
-            var classesArray = retrieveAllClassesFromPath(projectDirectory);
-            updateProgressBar2(45);
-            string modelname = retrieveModelName(solutionDirectory);
-            updateProgressBar2(50);
-            var result = await retrieveResultFromCodeAnalysisAsync(classesArray, modelname);
-            updateProgressBar2(100);
-            progressBar1.Hide();
+            try
+            {
+                
+                errorTextBox.Hide();
+                ErrorLabel.Hide();
+                updateProgressBar2(10);
+                String solutionDirectory = retrieveCurrentSolutionDirectory();
+                updateProgressBar2(30);
+                String projectDirectory = retrieveModelClassesDirectoryPath(solutionDirectory);
+                updateProgressBar2(40);
+                var classesObject = retrieveAllClassesFromPath(projectDirectory);
+                updateProgressBar2(45);
+                string modelname = retrieveModelName(solutionDirectory);
+                updateProgressBar2(50);
+                var result = await retrieveResultFromCodeAnalysisAsync(classesObject, modelname);
+                updateProgressBar2(100);
+                progressBar1.Hide();
+                VS.MessageBox.Show("Code analysis completed", "Code Analysis");
+
+            }
+            catch (Exception e)
+            {
+                button6.Hide();
+                errorTextBox.Show();
+                ErrorLabel.Show();
+                resetButton.Show();
+                errorTextBox.Text = e.Message;
+            }
         }
 
         public String retrieveCurrentSolutionDirectory()
         {
             string workingDirectory = Environment.CurrentDirectory;
             string solutionName = workingDirectory.Split('\\').Last();
+            if(String.IsNullOrEmpty(solutionName))
+            {
+                new Exception("You have to have an open Solution");
+                button6.Hide();
+                errorTextBox.Show();
+                ErrorLabel.Show();
+                resetButton.Show();
+                errorTextBox.Text = "You have to have an open Solution";
+            }
+
 
             return (workingDirectory + "\\" + solutionName + ".sln");
         }
@@ -137,7 +207,18 @@ namespace DLWCodeGeneratorExtensionNew
             string workingDirectory = Environment.CurrentDirectory;
             string solutionTextFile = File.ReadAllText(solutionPath);
             Regex regex = new Regex("\"[^\"\\\\]*\\\\[^\"\\\\]*\\.rnrproj\"");
+
             Match match = regex.Match(solutionTextFile);
+            if(match.Success == false)
+            {
+                errorTextBox.Show();
+                ErrorLabel.Show();
+                button6.Hide();
+                errorTextBox.Text = "You have to have a model in your solution";
+                new Exception(solutionPath + " does not contain a model");
+                return "You have to have a model in your solution";
+            }
+            
             string result = match.Groups[0].Value.Replace("\"", "");
             String projectFile = workingDirectory + "\\" + result;
             string xmlFile = File.ReadAllText(projectFile);
@@ -153,8 +234,9 @@ namespace DLWCodeGeneratorExtensionNew
             return "C:\\AOSService\\PackagesLocalDirectory\\" + modelValue + "\\" + modelValue + "\\AxClass";
 
         }
-        private ArrayList retrieveAllClassesFromPath(String path)
+        private ClassesRequestSend retrieveAllClassesFromPath(String path)
         {
+            List<String> fileNames = Directory.EnumerateFiles(path).Select(x =>x.ToString().Split('\\').Last().Replace(".xml","")).ToList();
             var files = from file in Directory.EnumerateFiles(path) select file;
             string classes = "";
             ArrayList classesArray = new ArrayList();
@@ -171,24 +253,31 @@ namespace DLWCodeGeneratorExtensionNew
                     classes = "";
                 }
             }
-            return classesArray;
+            ClassesRequestSend classesRequestSend = new ClassesRequestSend();
+            classesRequestSend.classes = classesArray;
+            classesRequestSend.classNames = fileNames;
+            return classesRequestSend;
         }
         private String retrieveCurrentUser()
         {
             return Environment.UserName;
         }
 
-        private async Task<String> retrieveResultFromCodeAnalysisAsync(ArrayList classes, String modelname)
+        private async Task<String> retrieveResultFromCodeAnalysisAsync(ClassesRequestSend classesObject, String modelname)
         {
-            var json = JsonConvert.SerializeObject(classes);
+            var json = JsonConvert.SerializeObject(classesObject.classes);
+            var jsonClassNames = JsonConvert.SerializeObject(classesObject.classNames);
+
 
             var client = new HttpClient();
             var formContent = new MultipartFormDataContent();
             formContent.Add(new StringContent(json), "classes");
             formContent.Add(new StringContent(modelname), "projectname");
             formContent.Add(new StringContent(retrieveCurrentUser()), "username");
+            formContent.Add(new StringContent(jsonClassNames), "classNames");
+
             int timeout = 0;
-            int characterLength = classes.Select(x => x.ToString().Length).Sum();
+            int characterLength = classesObject.classes.Select(x => x.ToString().Length).Sum();
 
             for (int i = 0; i < characterLength; i = i + 30000)
             {
@@ -219,6 +308,20 @@ namespace DLWCodeGeneratorExtensionNew
         private void label2_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void ErrorLabel_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void resetButton_Click(object sender, EventArgs e)
+        {
+            errorTextBox.Hide();
+            ErrorLabel.Hide();
+            updateProgressBar2(0);
+            resetButton.Hide();
+            button6.Show();
         }
     }
 }

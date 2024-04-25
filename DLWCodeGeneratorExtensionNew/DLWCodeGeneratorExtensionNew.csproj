@@ -45,6 +45,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="BatchJobScreen.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="BatchJobScreen.Designer.cs">
+      <DependentUpon>BatchJobScreen.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -103,9 +109,6 @@
     </VSCTCompile>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="DLWCodeGeneratorExtensionNew">
-      <HintPath>obj\Debug\DLWCodeGeneratorExtensionNew.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Design" />
@@ -132,6 +135,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="BatchJobScreen.resx">
+      <DependentUpon>BatchJobScreen.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

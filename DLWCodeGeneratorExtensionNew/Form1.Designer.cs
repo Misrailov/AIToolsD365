@@ -18,5 +18,6 @@
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Label TitleLabel;
         private CodeAnalyzeScreen codeAnalyzeScreen1;
+        private BatchJobScreen batchJobScreen1;
     }
 }

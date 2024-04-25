@@ -28,31 +28,23 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.button5 = new System.Windows.Forms.Button();
+            this.components = new System.ComponentModel.Container();
             this.button6 = new System.Windows.Forms.Button();
             this.AnalyseModeBox = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.ErrorLabel = new System.Windows.Forms.Label();
+            this.errorTextBox = new System.Windows.Forms.TextBox();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.resetButton = new System.Windows.Forms.Button();
+            this.currentProjectText = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
-            // 
-            // button5
-            // 
-            this.button5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(96)))), ((int)(((byte)(85)))));
-            this.button5.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button5.Font = new System.Drawing.Font("Century Gothic", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button5.ForeColor = System.Drawing.Color.White;
-            this.button5.Location = new System.Drawing.Point(100, 307);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(79, 25);
-            this.button5.TabIndex = 5;
-            this.button5.Text = "Cancel";
-            this.button5.UseVisualStyleBackColor = false;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
             // button6
             // 
-            this.button6.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(96)))), ((int)(((byte)(85)))));
+            this.button6.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(185)))), ((int)(((byte)(183)))), ((int)(((byte)(189)))));
+            this.button6.FlatAppearance.BorderSize = 0;
             this.button6.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button6.Font = new System.Drawing.Font("Century Gothic", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button6.ForeColor = System.Drawing.Color.White;
@@ -66,7 +58,7 @@
             // 
             // AnalyseModeBox
             // 
-            this.AnalyseModeBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.AnalyseModeBox.BackColor = System.Drawing.Color.White;
             this.AnalyseModeBox.FormattingEnabled = true;
             this.AnalyseModeBox.Items.AddRange(new object[] {
             "Analyze Current Project",
@@ -100,35 +92,95 @@
             // 
             // progressBar1
             // 
+            this.progressBar1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
             this.progressBar1.Location = new System.Drawing.Point(9, 307);
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(85, 23);
             this.progressBar1.TabIndex = 9;
             // 
+            // ErrorLabel
+            // 
+            this.ErrorLabel.AutoSize = true;
+            this.ErrorLabel.Font = new System.Drawing.Font("Century Gothic", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ErrorLabel.Location = new System.Drawing.Point(9, 157);
+            this.ErrorLabel.Name = "ErrorLabel";
+            this.ErrorLabel.Size = new System.Drawing.Size(36, 16);
+            this.ErrorLabel.TabIndex = 10;
+            this.ErrorLabel.Text = "Errors:";
+            this.ErrorLabel.Click += new System.EventHandler(this.ErrorLabel_Click);
+            // 
+            // errorTextBox
+            // 
+            this.errorTextBox.BackColor = System.Drawing.Color.White;
+            this.errorTextBox.Font = new System.Drawing.Font("Century Gothic", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.errorTextBox.ForeColor = System.Drawing.Color.Red;
+            this.errorTextBox.Location = new System.Drawing.Point(12, 176);
+            this.errorTextBox.Multiline = true;
+            this.errorTextBox.Name = "errorTextBox";
+            this.errorTextBox.Size = new System.Drawing.Size(225, 99);
+            this.errorTextBox.TabIndex = 11;
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
+            // 
+            // resetButton
+            // 
+            this.resetButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(185)))), ((int)(((byte)(183)))), ((int)(((byte)(189)))));
+            this.resetButton.FlatAppearance.BorderSize = 0;
+            this.resetButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.resetButton.Font = new System.Drawing.Font("Century Gothic", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.resetButton.ForeColor = System.Drawing.Color.White;
+            this.resetButton.Location = new System.Drawing.Point(175, 307);
+            this.resetButton.Name = "resetButton";
+            this.resetButton.Size = new System.Drawing.Size(79, 25);
+            this.resetButton.TabIndex = 12;
+            this.resetButton.Text = "reset";
+            this.resetButton.UseVisualStyleBackColor = false;
+            this.resetButton.Click += new System.EventHandler(this.resetButton_Click);
+            // 
+            // currentProjectText
+            // 
+            this.currentProjectText.Font = new System.Drawing.Font("Century Gothic", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.currentProjectText.Location = new System.Drawing.Point(9, 123);
+            this.currentProjectText.Name = "currentProjectText";
+            this.currentProjectText.ReadOnly = true;
+            this.currentProjectText.Size = new System.Drawing.Size(245, 160);
+            this.currentProjectText.TabIndex = 13;
+            this.currentProjectText.Text = "";
+            // 
             // CodeAnalyzeScreen
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.White;
+            this.Controls.Add(this.currentProjectText);
+            this.Controls.Add(this.resetButton);
+            this.Controls.Add(this.errorTextBox);
+            this.Controls.Add(this.ErrorLabel);
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.AnalyseModeBox);
-            this.Controls.Add(this.button5);
             this.Controls.Add(this.button6);
             this.Name = "CodeAnalyzeScreen";
-            this.Size = new System.Drawing.Size(254, 332);
+            this.Size = new System.Drawing.Size(280, 350);
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-
-        private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.ComboBox AnalyseModeBox;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ProgressBar progressBar1;
+        private System.Windows.Forms.Label ErrorLabel;
+        private System.Windows.Forms.TextBox errorTextBox;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.Button resetButton;
+        private System.Windows.Forms.RichTextBox currentProjectText;
     }
 }
