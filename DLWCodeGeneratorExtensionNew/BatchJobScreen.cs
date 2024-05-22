@@ -1,6 +1,7 @@
 ﻿using Community.VisualStudio.Toolkit;
 using EnvDTE;
 using IronPython.Compiler.Ast;
+using Microsoft.VisualStudio.Package;
 using Microsoft.VisualStudio.Text.Editor.Commanding.Commands;
 using Newtonsoft.Json;
 using System;
@@ -9,6 +10,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Text;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -19,76 +21,130 @@ using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Linq;
 using static IronPython.Modules.PythonCsvModule;
+using static Microsoft.VisualStudio.Shell.ThreadedWaitDialogHelper;
 
 namespace DLWCodeGeneratorExtensionNew
 {
     public partial class BatchJobScreen : UserControl
     {
+        //private string uri = "https://israilovmpythonapi.azurewebsites.net/";
+        private string uri = "http://localhost:8000/";
         public BatchJobScreen()
         {
             InitializeComponent();
             errorTextBox.Hide();
+            ErrorLabel.Hide();
+            resetButton.Hide();
         }
 
         public String RetrievePath()
         {
-            String solutionDirectory = retrieveCurrentSolutionDirectory();
-            
-            String projectDirectory = retrieveModelClassesDirectoryPath(solutionDirectory);
-            return projectDirectory;
-           
-        }
-
-        public String retrieveCurrentSolutionDirectory()
-        {
-            string workingDirectory = Environment.CurrentDirectory;
-            string solutionName = workingDirectory.Split('\\').Last();
-            if (String.IsNullOrEmpty(solutionName))
+            try
             {
-                new Exception("You have to have an open Solution");
-                button6.Hide();
+                String solutionDirectory = retrieveCurrentSolutionDirectory();
+
+                String projectDirectory = retrieveModelClassesDirectoryPath(solutionDirectory);
+                return projectDirectory;
+
+
+            }
+            catch (Exception e)
+            {
                 errorTextBox.Show();
                 ErrorLabel.Show();
-                resetButton.Show();
-                errorTextBox.Text = "You have to have an open Solution";
+                button6.Hide();
+                errorTextBox.Text = e.Message;
+                return null;
             }
+        }
+        public String retrieveCurrentSolutionDirectory()
+        {
+            try
+            {
+                string workingDirectory = Environment.CurrentDirectory;
+                string solutionName = workingDirectory.Split('\\').Last();
+                if (String.IsNullOrEmpty(solutionName))
+                {
+                    new Exception("You have to have an open Solution");
+                    button6.Hide();
+                    errorTextBox.Show();
+                    ErrorLabel.Show();
+                    resetButton.Show();
+                    errorTextBox.Text = "You have to have an open Solution";
+                }
 
 
-            return (workingDirectory + "\\" + solutionName + ".sln");
+                return (workingDirectory + "\\" + solutionName + ".sln");
+            }catch(Exception e)
+            {
+                errorTextBox.Show();
+                ErrorLabel.Show();
+                button6.Hide();
+                errorTextBox.Text = e.Message;
+                return null;
+            }
+        
         }
         public String retrieveModelName(String solutionPath)
         {
-            string workingDirectory = Environment.CurrentDirectory;
-            string solutionTextFile = File.ReadAllText(solutionPath);
-            Regex regex = new Regex("\"[^\"\\\\]*\\\\[^\"\\\\]*\\.rnrproj\"");
+            try
+            {
+                string workingDirectory = Environment.CurrentDirectory;
+                string solutionTextFile = File.ReadAllText(solutionPath);
+                Regex regex = new Regex("\"[^\"\\\\]*\\\\[^\"\\\\]*\\.rnrproj\"");
 
-            Match match = regex.Match(solutionTextFile);
-            if (match.Success == false)
+                Match match = regex.Match(solutionTextFile);
+                if (match.Success == false)
+                {
+                    errorTextBox.Show();
+                    ErrorLabel.Show();
+                    button6.Hide();
+                    errorTextBox.Text = "You have to have a model in your solution";
+                    new Exception(solutionPath + " does not contain a model");
+                    return "You have to have a model in your solution";
+                }
+
+                string result = match.Groups[0].Value.Replace("\"", "");
+                String projectFile = workingDirectory + "\\" + result;
+                string xmlFile = File.ReadAllText(projectFile);
+
+                XDocument doc = XDocument.Parse(xmlFile);
+                XNamespace ns = "http://schemas.microsoft.com/developer/msbuild/2003";
+                string modelValue = doc.Descendants(ns + "Model").FirstOrDefault()?.Value;
+                return modelValue;
+            }catch(Exception e)
             {
                 errorTextBox.Show();
                 ErrorLabel.Show();
                 button6.Hide();
-                errorTextBox.Text = "You have to have a model in your solution";
-                new Exception(solutionPath + " does not contain a model");
-                return "You have to have a model in your solution";
+                errorTextBox.Text = e.Message;
+                return null;
             }
-
-            string result = match.Groups[0].Value.Replace("\"", "");
-            String projectFile = workingDirectory + "\\" + result;
-            string xmlFile = File.ReadAllText(projectFile);
-
-            XDocument doc = XDocument.Parse(xmlFile);
-            XNamespace ns = "http://schemas.microsoft.com/developer/msbuild/2003";
-            string modelValue = doc.Descendants(ns + "Model").FirstOrDefault()?.Value;
-            return modelValue;
         }
         public String retrieveModelClassesDirectoryPath(String solutionPath)
         {
-            string modelValue = retrieveModelName(solutionPath);
-            return "C:\\AOSService\\PackagesLocalDirectory\\" + modelValue + "\\" + modelValue + "\\AxClass";
+            try
+            {
+                string modelValue = retrieveModelName(solutionPath);
+                return "C:\\AOSService\\PackagesLocalDirectory\\" + modelValue + "\\" + modelValue + "\\AxClass";
+            }catch(Exception e)
+            {
+                errorTextBox.Show();
+                ErrorLabel.Show();
+                button6.Hide();
+                errorTextBox.Text = e.Message;
+                return null;
+            }
 
         }
 
+        private async Task<Stream> retrieveProjects()
+        {
+            var client = new HttpClient();
+            var formContent = new MultipartFormDataContent();
+            var response = await client.GetAsync("http://127.0.0.1:8000/retrieveResults");
+            return await response.Content.ReadAsStreamAsync();
+        }
 
         private async Task<Stream> RetrieveGeneratedBatchJobsMessageContentStream()
         {
@@ -105,7 +161,8 @@ namespace DLWCodeGeneratorExtensionNew
                 var client = new HttpClient();
                 var formContent = new MultipartFormDataContent();
                 formContent.Add(new StringContent(batchJobFunctionText.Text), "description");
-                var response = await client.PostAsync("https://israilovmpythonapi.azurewebsites.net/batchjobgenerator", formContent);
+                string uriToRequest = uri + "batchjobgenerator";
+                var response = await client.PostAsync(uriToRequest, formContent);
                 return await response.Content.ReadAsStreamAsync();
             }catch(Exception e)
             {
@@ -224,6 +281,28 @@ namespace DLWCodeGeneratorExtensionNew
 
         }
 
+        private async Task addClassesFromMongoToProject()
+        {
+            var responseStream = await retrieveProjects();
+            using (var reader = new StreamReader(responseStream))
+            {
+                var responseContent = await reader.ReadToEndAsync();
+
+                var responseObject = JsonConvert.DeserializeObject<GetProjectsResult>(responseContent);
+
+                
+                string path = RetrievePath();
+                List<ProjectMongo> projects = responseObject.results;
+                for (int i = 0; i < projects.Count; i++)
+                {
+                    createXmlFileAtPath(path, projects[i].category +"_" + projects[i].model+ "_"+ projects[i].size, projects[i].xml_result );
+                    AddClassLinkToProject(projects[i].category + "_" + projects[i].model + "_" + projects[i].size);
+                }
+
+
+            }
+        }
+
             private async Task ExecuteFunction()
         {
             progressBar1.Show();
@@ -249,6 +328,15 @@ namespace DLWCodeGeneratorExtensionNew
             }
 
             return;
+        }
+
+        private void resetButton_Click(object sender, EventArgs e)
+        {
+            errorTextBox.Hide();
+            ErrorLabel.Hide();
+            UpdateProgressBar(0);
+            resetButton.Hide();
+            button6.Show();
         }
     }
 }

@@ -23,6 +23,8 @@ namespace DLWCodeGeneratorExtensionNew
 {
     public partial class CodeAnalyzeScreen : UserControl
     {
+        //private string uri = "https://israilovmpythonapi.azurewebsites.net/";
+        private string uri = "http://localhost:8000/";
         public CodeAnalyzeScreen()
         {
             InitializeComponent();
@@ -30,6 +32,7 @@ namespace DLWCodeGeneratorExtensionNew
             ErrorLabel.Hide();
             resetButton.Hide();
             currentProjectText.Hide();
+            
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -60,13 +63,23 @@ namespace DLWCodeGeneratorExtensionNew
         }
         private async Task summarizeCurrentWindowsCode()
         {
+            try { 
             updateProgressBar2(10);
-           
+
             String classesRetrieved = retrieveCurrentWindowsCode();
+            //if(classesRetrieved != null || classesRetrieved.Trim() == "") { throw new Exception("You have to select a class with code"); }
             var result = await retrieveCurrentWindowsCodeAnalysisAsync(classesRetrieved);
             this.currentProjectText.Show();
             this.currentProjectText.Text = result;
             updateProgressBar2(100);
+        }catch(Exception e)
+            {
+                button6.Hide();
+                errorTextBox.Show();
+                ErrorLabel.Show();
+                resetButton.Show();
+                errorTextBox.Text = e.Message;
+            }
         }
 
         private async Task<String> retrieveCurrentWindowsCodeAnalysisAsync(String classes)
@@ -79,7 +92,8 @@ namespace DLWCodeGeneratorExtensionNew
                 var formContent = new MultipartFormDataContent();
                 formContent.Add(new StringContent(classes), "classes");
                 updateProgressBar2(60);
-                var response = await client.PostAsync("https://israilovmpythonapi.azurewebsites.net/windowAnalyzer", formContent);
+                string uriToRequest = uri + "windowAnalyzer";
+                var response = await client.PostAsync(uriToRequest, formContent);
                 if (response.StatusCode != System.Net.HttpStatusCode.OK)
                 {
                     return "Error in code analysis";
@@ -118,38 +132,60 @@ namespace DLWCodeGeneratorExtensionNew
             }
             TextDocument activeDoc = currentDte.ActiveDocument.Object() as TextDocument;
             
+            text = StringExtensions.SplitByLength(text,500).Aggregate((x, y) => x + "\n"+ y);
+
 
             activeDoc.Selection.Text ="/*" +text+ "*/" + activeDoc.Selection.Text;
 
         }
-
+     
         public String retrieveCurrentWindowsCode()
         {
-            DTE currentDte = Package.GetGlobalService(typeof(DTE)) as DTE;
-            if (currentDte.ActiveDocument == null) {
-                errorTextBox.Show();
-                errorTextBox.Text = "You have to select a current document";
-                return "You have to select a current document"; }
-            TextDocument activeDoc = currentDte.ActiveDocument.Object() as TextDocument;
-            
-            var text = activeDoc.Selection.Text;
-            var documentCollection = currentDte.Documents;
-            String classesRetrieved = "";
-            foreach (var doc in documentCollection)
+            try
             {
-                var doc2 = doc as Document;
-                String path = doc2.FullName;
+                DTE currentDte = Package.GetGlobalService(typeof(DTE)) as DTE;
+                if (currentDte.ActiveDocument == null)
+                {
+                    errorTextBox.Show();
+                    errorTextBox.Text = "You have to select a current document";
+                    throw new Exception("You have to select a current document");
+                }
+                TextDocument activeDoc = currentDte.ActiveDocument.Object() as TextDocument;
 
-                string text2 = File.ReadAllText(path);
-                Console.WriteLine(text2);
-                classesRetrieved += ("<class: " + doc2.Name + ">\n");
-                classesRetrieved += text2;
-                classesRetrieved += ("</class:>\n");
+                if (activeDoc == null)
+                {
+                    errorTextBox.Show();
+                    errorTextBox.Text = "You have to select a current document";
+                    throw new Exception("You have to select a current document");
+                }
+                var text = activeDoc.Selection.Text;
+                var documentCollection = currentDte.Documents;
+                String classesRetrieved = "";
+                foreach (var doc in documentCollection)
+                {
+                    var doc2 = doc as Document;
+                    String path = doc2.FullName;
+
+                    string text2 = File.ReadAllText(path);
+                    Console.WriteLine(text2);
+                    classesRetrieved += ("<class: " + doc2.Name + ">\n");
+                    classesRetrieved += text2;
+                    classesRetrieved += ("</class:>\n");
 
 
+                }
+                updateProgressBar2(35);
+                return classesRetrieved;
             }
-            updateProgressBar2(35);
-            return classesRetrieved;
+            catch (Exception e)
+            {
+                errorTextBox.Show();
+                ErrorLabel.Show();
+                button6.Hide();
+                resetButton.Show();
+                errorTextBox.Text = e.Message;
+                return "";
+            }
         }
 
 
@@ -167,9 +203,10 @@ namespace DLWCodeGeneratorExtensionNew
                 updateProgressBar2(40);
                 var classesObject = retrieveAllClassesFromPath(projectDirectory);
                 updateProgressBar2(45);
+                var tablesString = retrieveAllTablesFromPath(retrieveModelTablesDirectoryPath(solutionDirectory));
                 string modelname = retrieveModelName(solutionDirectory);
                 updateProgressBar2(50);
-                var result = await retrieveResultFromCodeAnalysisAsync(classesObject, modelname);
+                var result = await retrieveResultFromCodeAnalysisAsync(classesObject, modelname,tablesString);
                 updateProgressBar2(100);
                 progressBar1.Hide();
                 VS.MessageBox.Show("Code analysis completed", "Code Analysis");
@@ -234,27 +271,26 @@ namespace DLWCodeGeneratorExtensionNew
             return "C:\\AOSService\\PackagesLocalDirectory\\" + modelValue + "\\" + modelValue + "\\AxClass";
 
         }
+        public String retrieveModelTablesDirectoryPath(String solutionPath)
+        {
+            string modelValue = retrieveModelName(solutionPath);
+            return "C:\\AOSService\\PackagesLocalDirectory\\" + modelValue + "\\" + modelValue + "\\AxTable";
+        }
+        private String retrieveAllTablesFromPath(String path)
+        {
+            List<String> fileNames = Directory.EnumerateFiles(path).Select(x => x.ToString().Split('\\').Last().Replace(".xml", "")).ToList();
+            var files = from file in Directory.EnumerateFiles(path) select file;
+            string tables = files.Where(x => x.EndsWith(".xml")).Select(x => "<table>" + File.ReadAllText(x) + "</table>").Aggregate((x, y) => x + y);
+            return tables;
+        }
+
         private ClassesRequestSend retrieveAllClassesFromPath(String path)
         {
             List<String> fileNames = Directory.EnumerateFiles(path).Select(x =>x.ToString().Split('\\').Last().Replace(".xml","")).ToList();
             var files = from file in Directory.EnumerateFiles(path) select file;
-            string classes = "";
-            ArrayList classesArray = new ArrayList();
-            foreach (var file in files)
-            {
-                if (file.EndsWith(".xml"))
-                {
-                    classes += ("<class>\n");
-
-                    string classContents = File.ReadAllText(file);
-                    classes += classContents;
-                    classes += ("</class>\n");
-                    classesArray.Add(classes);
-                    classes = "";
-                }
-            }
+            ArrayList classesNew = new ArrayList(files.Where(x => x.EndsWith(".xml")).Select(x => "<class>" + File.ReadAllText(x) + "</class>").ToList());
             ClassesRequestSend classesRequestSend = new ClassesRequestSend();
-            classesRequestSend.classes = classesArray;
+            classesRequestSend.classes = classesNew;
             classesRequestSend.classNames = fileNames;
             return classesRequestSend;
         }
@@ -263,40 +299,51 @@ namespace DLWCodeGeneratorExtensionNew
             return Environment.UserName;
         }
 
-        private async Task<String> retrieveResultFromCodeAnalysisAsync(ClassesRequestSend classesObject, String modelname)
+        private async Task<String> retrieveResultFromCodeAnalysisAsync(ClassesRequestSend classesObject, String modelname,string tablesString)
         {
-            var json = JsonConvert.SerializeObject(classesObject.classes);
-            var jsonClassNames = JsonConvert.SerializeObject(classesObject.classNames);
+           
 
 
-            var client = new HttpClient();
-            var formContent = new MultipartFormDataContent();
-            formContent.Add(new StringContent(json), "classes");
-            formContent.Add(new StringContent(modelname), "projectname");
-            formContent.Add(new StringContent(retrieveCurrentUser()), "username");
-            formContent.Add(new StringContent(jsonClassNames), "classNames");
+                var json = JsonConvert.SerializeObject(classesObject.classes);
+                var jsonClassNames = JsonConvert.SerializeObject(classesObject.classNames);
 
-            int timeout = 0;
-            int characterLength = classesObject.classes.Select(x => x.ToString().Length).Sum();
 
-            for (int i = 0; i < characterLength; i = i + 30000)
-            {
-                timeout += 125;
-            }
-            updateProgressBar2(60);
-            client.Timeout = TimeSpan.FromSeconds(timeout);
-            var response = await client.PostAsync("https://israilovmpythonapi.azurewebsites.net/codeAnalyzer", formContent);
-            updateProgressBar2(90);
-            String textFromResponse = "";
-            var responseStream = await response.Content.ReadAsStreamAsync();
-            using (var reader = new StreamReader(responseStream))
-            {
-                var responseContent = await reader.ReadToEndAsync();
-                var responseObject = JsonConvert.DeserializeObject<ResultObject>(responseContent);
-                textFromResponse = responseObject.Detailed;
-                string textFromResponseSimple = responseObject.Simple;
-            }
-            return textFromResponse;
+                var client = new HttpClient();
+                var formContent = new MultipartFormDataContent();
+                formContent.Add(new StringContent(json), "classes");
+                formContent.Add(new StringContent(modelname), "projectname");
+                formContent.Add(new StringContent(retrieveCurrentUser()), "username");
+                formContent.Add(new StringContent(jsonClassNames), "classNames");
+                formContent.Add(new StringContent(tablesString), "tablesString");
+                int timeout = 0;
+                int characterLength = classesObject.classes.Select(x => x.ToString().Length).Sum();
+
+                for (int i = 0; i < characterLength; i = i + 30000)
+                {
+                    timeout += 125;
+                }
+                updateProgressBar2(60);
+                client.Timeout = TimeSpan.FromSeconds(timeout);
+                string uriToRequest = uri + "codeAnalyzer";
+                var response = await client.PostAsync(uri, formContent);
+                updateProgressBar2(90);
+                String textFromResponse = "";
+                var responseStream = await response.Content.ReadAsStreamAsync();
+                using (var reader = new StreamReader(responseStream))
+                {
+                    var responseContent = await reader.ReadToEndAsync();
+                    var responseObject = JsonConvert.DeserializeObject<ResultObject>(responseContent);
+                    textFromResponse = responseObject.Detailed;
+                    string textFromResponseSimple = responseObject.Simple;
+                    string uriToRequest2 = uri + "create_embeddings/";
+
+                    var response2 = await client.GetAsync(uriToRequest2 + responseObject.projectId);
+
+
+                }
+                return textFromResponse;
+            
+
         }
         private void updateProgressBar2(int value)
         {
@@ -322,6 +369,17 @@ namespace DLWCodeGeneratorExtensionNew
             updateProgressBar2(0);
             resetButton.Hide();
             button6.Show();
+            currentProjectText.Hide();
+        }
+    }
+    public static class StringExtensions
+    {
+        public static IEnumerable<string> SplitByLength(this string str, int maxLength)
+        {
+            for (int index = 0; index < str.Length; index += maxLength)
+            {
+                yield return str.Substring(index, Math.Min(maxLength, str.Length - index));
+            }
         }
     }
 }

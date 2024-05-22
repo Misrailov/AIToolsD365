@@ -431,6 +431,23 @@ public class MyResponseObject
     public ControllerFile ControllerFile { get; set; }
     public ServiceFile ServiceFile { get; set; }
 }
+public class ProjectMongo
+{
+    public string category { get; set; }
+    public string promp_length { get; set; }
+    public string prompt { get; set; }
+    public string result { get; set; }
+    public string total_time { get; set; }
+    public string model { get; set; }
+    public string size { get; set; }
+    public string xml_result { get; set; }
+
+}
+public class GetProjectsResult
+{
+    public int length { get; set; }
+    public List<ProjectMongo> results { get; set; }
+}
 
 public class ContractFile
 {
@@ -457,6 +474,7 @@ public class ResultObject
 {
     public string Detailed { get; set; }
     public string Simple { get; set; }
+    public string projectId { get; set; }
 }
 public class MyResponseObject2
 {

@@ -21,7 +21,7 @@
         <Icon guid="ImageCatalogGuid" id="GenerateMethod" />
         <CommandFlag>IconIsMoniker</CommandFlag>
         <Strings>
-          <ButtonText>Generate X++ Code</ButtonText>
+          <ButtonText>X++ AI Tools</ButtonText>
           <LocCanonicalName>.DLWCodeGeneratorExtensionNew.MyCommand</LocCanonicalName>
         </Strings>
       </Button>

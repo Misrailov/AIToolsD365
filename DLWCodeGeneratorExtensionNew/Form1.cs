@@ -32,6 +32,8 @@ namespace DLWCodeGeneratorExtensionNew
                 Region = System.Drawing.Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, 20, 20));
     */
             batchJobScreen1.Hide();
+            MinimizeWindowButton.Hide();
+            CloseScreenButton.Hide();
 
 
         }
@@ -60,8 +62,8 @@ namespace DLWCodeGeneratorExtensionNew
             this.panel2 = new System.Windows.Forms.Panel();
             this.MinimizeWindowButton = new System.Windows.Forms.Button();
             this.CloseScreenButton = new System.Windows.Forms.Button();
-            this.codeAnalyzeScreen1 = new DLWCodeGeneratorExtensionNew.CodeAnalyzeScreen();
             this.batchJobScreen1 = new DLWCodeGeneratorExtensionNew.BatchJobScreen();
+            this.codeAnalyzeScreen1 = new DLWCodeGeneratorExtensionNew.CodeAnalyzeScreen();
             this.panel1.SuspendLayout();
             this.panel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -70,7 +72,7 @@ namespace DLWCodeGeneratorExtensionNew
             // 
             // panel1
             // 
-            this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(185)))), ((int)(((byte)(183)))), ((int)(((byte)(189)))));
+            this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(153)))), ((int)(((byte)(142)))), ((int)(((byte)(141)))));
             this.panel1.Controls.Add(this.CodeGenScreenButton);
             this.panel1.Controls.Add(this.ProjAnalysisScreenButton);
             this.panel1.Controls.Add(this.panel3);
@@ -83,7 +85,7 @@ namespace DLWCodeGeneratorExtensionNew
             // 
             // CodeGenScreenButton
             // 
-            this.CodeGenScreenButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(134)))), ((int)(((byte)(139)))), ((int)(((byte)(142)))));
+            this.CodeGenScreenButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(69)))), ((int)(((byte)(61)))));
             this.CodeGenScreenButton.FlatAppearance.BorderSize = 0;
             this.CodeGenScreenButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.CodeGenScreenButton.Font = new System.Drawing.Font("Century Gothic", 11.25F);
@@ -98,7 +100,7 @@ namespace DLWCodeGeneratorExtensionNew
             // 
             // ProjAnalysisScreenButton
             // 
-            this.ProjAnalysisScreenButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(134)))), ((int)(((byte)(139)))), ((int)(((byte)(142)))));
+            this.ProjAnalysisScreenButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(69)))), ((int)(((byte)(61)))));
             this.ProjAnalysisScreenButton.FlatAppearance.BorderSize = 0;
             this.ProjAnalysisScreenButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.ProjAnalysisScreenButton.Font = new System.Drawing.Font("Century Gothic", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -113,7 +115,7 @@ namespace DLWCodeGeneratorExtensionNew
             // 
             // panel3
             // 
-            this.panel3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(134)))), ((int)(((byte)(139)))), ((int)(((byte)(142)))));
+            this.panel3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(69)))), ((int)(((byte)(61)))));
             this.panel3.Controls.Add(this.label1);
             this.panel3.Controls.Add(this.pictureBox1);
             this.panel3.Controls.Add(this.TitleLabel);
@@ -126,6 +128,7 @@ namespace DLWCodeGeneratorExtensionNew
             // label1
             // 
             this.label1.AutoSize = true;
+            this.label1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(10)))), ((int)(((byte)(8)))), ((int)(((byte)(200)))), ((int)(((byte)(164)))));
             this.label1.Font = new System.Drawing.Font("Century Gothic", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.Color.White;
             this.label1.Location = new System.Drawing.Point(3, 74);
@@ -159,7 +162,7 @@ namespace DLWCodeGeneratorExtensionNew
             // 
             // panel2
             // 
-            this.panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(185)))), ((int)(((byte)(183)))), ((int)(((byte)(189)))));
+            this.panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(153)))), ((int)(((byte)(142)))), ((int)(((byte)(141)))));
             this.panel2.Controls.Add(this.MinimizeWindowButton);
             this.panel2.Controls.Add(this.CloseScreenButton);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
@@ -171,7 +174,7 @@ namespace DLWCodeGeneratorExtensionNew
             // 
             // MinimizeWindowButton
             // 
-            this.MinimizeWindowButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(134)))), ((int)(((byte)(139)))), ((int)(((byte)(142)))));
+            this.MinimizeWindowButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(69)))), ((int)(((byte)(61)))));
             this.MinimizeWindowButton.FlatAppearance.BorderSize = 0;
             this.MinimizeWindowButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.MinimizeWindowButton.Font = new System.Drawing.Font("Century Gothic", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -187,7 +190,7 @@ namespace DLWCodeGeneratorExtensionNew
             // 
             // CloseScreenButton
             // 
-            this.CloseScreenButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(134)))), ((int)(((byte)(139)))), ((int)(((byte)(142)))));
+            this.CloseScreenButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(244)))), ((int)(((byte)(69)))), ((int)(((byte)(61)))));
             this.CloseScreenButton.FlatAppearance.BorderSize = 0;
             this.CloseScreenButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.CloseScreenButton.Font = new System.Drawing.Font("Century Gothic", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -201,6 +204,13 @@ namespace DLWCodeGeneratorExtensionNew
             this.CloseScreenButton.Visible = false;
             this.CloseScreenButton.Click += new System.EventHandler(this.CloseScreenButton_Click);
             // 
+            // batchJobScreen1
+            // 
+            this.batchJobScreen1.Location = new System.Drawing.Point(127, 29);
+            this.batchJobScreen1.Name = "batchJobScreen1";
+            this.batchJobScreen1.Size = new System.Drawing.Size(262, 324);
+            this.batchJobScreen1.TabIndex = 3;
+            // 
             // codeAnalyzeScreen1
             // 
             this.codeAnalyzeScreen1.BackColor = System.Drawing.Color.White;
@@ -208,13 +218,6 @@ namespace DLWCodeGeneratorExtensionNew
             this.codeAnalyzeScreen1.Name = "codeAnalyzeScreen1";
             this.codeAnalyzeScreen1.Size = new System.Drawing.Size(280, 350);
             this.codeAnalyzeScreen1.TabIndex = 2;
-            // 
-            // batchJobScreen1
-            // 
-            this.batchJobScreen1.Location = new System.Drawing.Point(127, 29);
-            this.batchJobScreen1.Name = "batchJobScreen1";
-            this.batchJobScreen1.Size = new System.Drawing.Size(262, 324);
-            this.batchJobScreen1.TabIndex = 3;
             // 
             // Form1
             // 
@@ -229,7 +232,7 @@ namespace DLWCodeGeneratorExtensionNew
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.IsMdiContainer = true;
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "AI Tools";
             this.panel1.ResumeLayout(false);
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
