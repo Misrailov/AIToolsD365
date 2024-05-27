@@ -23,7 +23,6 @@ namespace DLWCodeGeneratorExtensionNew
 {
     public partial class CodeAnalyzeScreen : UserControl
     {
-        //private string uri = "https://israilovmpythonapi.azurewebsites.net/";
         private string uri = "http://localhost:8000/";
         public CodeAnalyzeScreen()
         {

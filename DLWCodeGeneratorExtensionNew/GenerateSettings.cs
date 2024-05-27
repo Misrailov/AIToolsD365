@@ -364,7 +364,7 @@ namespace DLWCodeGeneratorExtensionNew
             }
             updateProgressBar2(60);
             client.Timeout = TimeSpan.FromSeconds(timeout);
-            var response = await client.PostAsync("https://israilovmpythonapi.azurewebsites.net/codeAnalyzer", formContent);
+            var response = await client.PostAsync("", formContent);
             updateProgressBar2(90);
             String textFromResponse = "";
             var responseStream = await response.Content.ReadAsStreamAsync();

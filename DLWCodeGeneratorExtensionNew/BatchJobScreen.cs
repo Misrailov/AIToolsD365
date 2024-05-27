@@ -27,7 +27,6 @@ namespace DLWCodeGeneratorExtensionNew
 {
     public partial class BatchJobScreen : UserControl
     {
-        //private string uri = "https://israilovmpythonapi.azurewebsites.net/";
         private string uri = "http://localhost:8000/";
         public BatchJobScreen()
         {
